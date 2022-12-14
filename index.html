@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biodata</title>
+</head>
+<body>
+    <h1 id="text-nama">Panji Satria</h1>
+    <h1 id="text-domisili">Jakarta</h1>
+
+    <form>
+        <input type="text" id="input-nama" placeholder="input nama anda">
+        <input type="text" id="input-domisili" placeholder="input domisili anda">
+        <button id="btn-submit" onclick="handleSubmit(event)">submit</button>
+    </form>
+    <button id="btn-reset" onclick="handleReset(event)">reset</button>
+    <br>
+    <form>
+        <input type="text" id="input-aktivitas" placeholder="input aktivitas anda">
+        <button id="btn-submit2" onclick="addActivity(event)">tambah aktivitas</button>
+    </form>
+    <ul id="list-aktivitas"></ul>
+    <script>
+        //getItem untuk mengambil data di localStorage, memerlukan nama keynya
+        let nama = localStorage.getItem('nama')
+        console.log(nama, 'ini nama dari ls');
+        let domisili = localStorage.getItem('domisili')
+        let textNama = document.getElementById('text-nama')
+        let textDomisili = document.getElementById('text-domisili')
+        let inputNama = document.getElementById('input-nama')
+        let inputDomisili = document.getElementById('input-domisili')
+        //ketika get local storage disini, berarti dia mengecek local storage pada saat halaman website dibuka
+        let listActivity = localStorage.getItem('listActivity')
+        let parseList = []
+        
+
+        if (nama) {
+            textNama.innerText = nama
+        }
+        if (domisili) {
+            textDomisili.innerText = domisili
+        }
+
+        function handleSubmit(event) {
+            event.preventDefault()
+            textDomisili.innerText = inputDomisili.value
+            textNama.innerText = inputNama.value
+            //apabila melakukan set pada key yg sama, maka akan dilakukan overwrite(ditimpa) terhadap nilai sebelumnya
+            localStorage.setItem('nama', inputNama.value)
+            localStorage.setItem('domisili', inputDomisili.value)
+        }
+
+        function handleReset(event) {
+            event.preventDefault()
+            // perlu input key, untuk menghapus secara spesifik
+            // localStorage.removeItem('nama')
+            // localStorage.removeItem('domisili')
+            // clear akan menghapus semua key dan value di localStorage
+            localStorage.clear()
+            textNama.innerText = 'Panji Satria'
+            textDomisili.innerText = 'Jakarta'
+            inputDomisili.value = null
+            inputNama.value = null
+        }
+
+        if (listActivity) {
+            parseList = JSON.parse(listActivity)
+            // parseList.forEach(data => {
+            //     console.log(data, 'ini activity');
+            //     let newActivity = document.createElement('li')
+            //     newActivity.textContent = data.activity
+            //     document.getElementById('list-aktivitas').append(newActivity)
+            // });
+            //disini melakukan akses langsung ke key activity nya
+            //kurung {} => dinamakan destructured => hanya bisa dilakukan pada tipe data objek
+            parseList.forEach(({activity}) => {
+                console.log(activity, 'ini activity dari magic');
+                let newActivity = document.createElement('li')
+                newActivity.textContent = activity
+                document.getElementById('list-aktivitas').append(newActivity)
+            });
+        }
+
+        function addActivity(event) {
+            event.preventDefault()
+            let inputAktivitas = document.getElementById('input-aktivitas')
+            if (!inputAktivitas.value) {
+                console.log('gak ada input')
+                //early return => untuk memastikan logika dibawahnya tidak ikut jalan setelah kondisi
+                return;
+            }
+            //akan menarik data paling akhir (up to date)
+            listActivity = localStorage.getItem('listActivity')
+            parseList = []
+            if (listActivity) {
+                parseList = JSON.parse(listActivity)
+            }
+            console.log( listActivity, 'list activity',  parseList, 'parse list')
+            let activity = {
+                id: parseList.length > 0 ? parseList.length + 1 : 1,
+                activity: inputAktivitas.value
+            }
+            parseList.push(activity)
+            // local storage hanya bisa menyimpan string. objek dan array perlu dikonversi dengan JSON.stringify
+            localStorage.setItem('listActivity', JSON.stringify(parseList))
+            let newActivity = document.createElement('li')
+            newActivity.textContent = inputAktivitas.value
+            document.getElementById('list-aktivitas').append(newActivity)
+        }
+    </script>
+</body>
+</html>
